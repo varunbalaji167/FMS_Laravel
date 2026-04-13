@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LeaveReportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -19,6 +21,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', function () {
         return Inertia::render('Admin/Dashboard'); 
     })->name('dashboard');
+    
+    Route::get('/leaves/pending-approvals', [LeaveController::class, 'pendingApprovals'])->name('leaves.pending-approvals');
+    Route::post('/leaves/{leave}/approve', [LeaveController::class, 'approveLeave'])->name('leaves.approve');
+    Route::get('/leaves/report', [LeaveReportController::class, 'adminReport'])->name('leaves.report');
+    Route::get('/leaves/report/export', [LeaveReportController::class, 'exportCSV'])->name('leaves.report.export');
 });
 
 
@@ -28,6 +35,11 @@ Route::middleware(['auth', 'role:hod'])->prefix('hod')->name('hod.')->group(func
     Route::get('/dashboard', function () {
         return Inertia::render('Hod/Dashboard');
     })->name('dashboard');
+    
+    Route::get('/leaves/pending-recommendations', [LeaveController::class, 'pendingRecommendations'])->name('leaves.pending-recommendations');
+    Route::post('/leaves/{leave}/recommend', [LeaveController::class, 'recommendLeave'])->name('leaves.recommend');
+    Route::get('/leaves/report', [LeaveReportController::class, 'hodReport'])->name('leaves.report');
+    Route::get('/leaves/report/export', [LeaveReportController::class, 'exportCSV'])->name('leaves.report.export');
 });
 
 
@@ -37,6 +49,11 @@ Route::middleware(['auth', 'role:faculty'])->prefix('faculty')->name('faculty.')
     Route::get('/dashboard', function () {
         return Inertia::render('Faculty/Dashboard');
     })->name('dashboard');
+    
+    Route::get('/leaves/apply', [LeaveController::class, 'create'])->name('leaves.create');
+    Route::post('/leaves', [LeaveController::class, 'store'])->name('leaves.store');
+    Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves.index');
+    Route::get('/leaves/report', [LeaveReportController::class, 'facultyReport'])->name('leaves.report');
 });
 
 

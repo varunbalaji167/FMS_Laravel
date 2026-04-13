@@ -10,6 +10,7 @@ import {
     Menu,
     X,
     Briefcase,
+    BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ToastListener from "@/Components/ToastListener";
@@ -25,6 +26,18 @@ export default function AdminLayout({ children }) {
             href: route("admin.dashboard"),
             icon: LayoutDashboard,
             active: route().current("admin.dashboard"),
+        },
+        {
+            name: "Leave Approvals",
+            href: route("admin.leaves.pending-approvals"),
+            icon: FileText,
+            active: route().current("admin.leaves.pending-approvals"),
+        },
+        {
+            name: "Leave Reports",
+            href: route("admin.leaves.report"),
+            icon: BarChart3,
+            active: route().current("admin.leaves.report"),
         },
         { name: "Master Directory", href: "#", icon: Users, active: false },
         { name: "Institute Reports", href: "#", icon: FileText, active: false },

@@ -9,6 +9,7 @@ import {
     LogOut,
     Menu,
     X,
+    BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ToastListener from "@/Components/ToastListener";
@@ -27,10 +28,16 @@ export default function HodLayout({ children }) {
         },
         { name: "Faculty Directory", href: "#", icon: Users, active: false },
         {
-            name: "Leave Approvals",
-            href: "#",
+            name: "Leave Recommendations",
+            href: route("hod.leaves.pending-recommendations"),
             icon: CheckCircle,
-            active: false,
+            active: route().current("hod.leaves.pending-recommendations"),
+        },
+        {
+            name: "Leave Reports",
+            href: route("hod.leaves.report"),
+            icon: BarChart3,
+            active: route().current("hod.leaves.report"),
         },
         { name: "Appraisal Review", href: "#", icon: Award, active: false },
     ];
