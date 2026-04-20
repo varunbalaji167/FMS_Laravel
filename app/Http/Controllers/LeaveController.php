@@ -61,7 +61,7 @@ class LeaveController extends Controller
 
         if ($leave->hasOverlappingLeaves()) {
             return back()->withErrors([
-                'overlapping' => 'You already have an approved or pending leave during this period.'
+                'overlapping' => 'You already have an approved or pending leave during this period.',
             ]);
         }
 
@@ -69,7 +69,7 @@ class LeaveController extends Controller
         if (!$leave->canApply(allowLWP: false)) {
             $currentBalance = $balance->computeFromLedger()->balance;
             return back()->withErrors([
-                'leave_balance' => "Insufficient balance. You have {$currentBalance} days available but need {$totalDays} days."
+                'leave_balance' => "Insufficient balance. You have {$currentBalance} days available but need {$totalDays} days.",
             ]);
         }
 
@@ -115,10 +115,18 @@ class LeaveController extends Controller
             ->where('year', now()->year)
             ->get();
 
-        // Compute balances from ledger
-        foreach ($leaveBalances as $balance) {
-            $balance->computeFromLedger();
-        }
+        // Compute balances from ledger by directly calculating from ledger entries
+        $leaveBalances = $leaveBalances->map(function($balance) {
+            // Recompute balance from all ledger entries for this user, leave_type, and year
+            $computedBalance = LeaveLedger::where('user_id', $balance->user_id)
+                ->where('leave_type', $balance->leave_type)
+                ->whereYear('created_at', $balance->year)
+                ->sum('change');
+            
+            // Update the balance value (this will be serialized to frontend)
+            $balance->balance = (float) $computedBalance;
+            return $balance;
+        });
 
         $leaveBalancesKeyed = $leaveBalances->keyBy('leave_type');
 
@@ -143,15 +151,35 @@ class LeaveController extends Controller
     {
         $user = auth()->user();
 
+        // Fetch all leaves where this user is the recommender and status is pending
         $leaves = Leave::where('recommender_id', $user->id)
             ->where('recommender_status', Leave::STATUS_PENDING)
             ->with(['user', 'approver'])
             ->latest()
             ->paginate(10);
 
+        // Add summary statistics
+        $totalPending = Leave::where('recommender_id', $user->id)
+            ->where('recommender_status', Leave::STATUS_PENDING)
+            ->count();
+
+        $totalFacultyInvolved = Leave::where('recommender_id', $user->id)
+            ->where('recommender_status', Leave::STATUS_PENDING)
+            ->distinct('user_id')
+            ->count();
+
+        $totalDaysRequested = Leave::where('recommender_id', $user->id)
+            ->where('recommender_status', Leave::STATUS_PENDING)
+            ->sum('total_days');
+
         return Inertia::render('Hod/PendingRecommendations', [
             'leaves' => $leaves,
             'leaveTypes' => Leave::LEAVE_TYPES,
+            'stats' => [
+                'pending' => $totalPending,
+                'faculty' => $totalFacultyInvolved,
+                'days' => $totalDaysRequested,
+            ],
         ]);
     }
 
@@ -179,7 +207,7 @@ class LeaveController extends Controller
             'approver_approved_at' => $validated['action'] === Leave::STATUS_REJECTED ? now() : $leave->approver_approved_at,
         ]);
 
-        // If rejected, don't create ledger entry (balance stays unchanged)
+        // If rejected by recommender, don't create ledger entry
         // If approved by recommender, still wait for approver before ledger entry
 
         return back()->with('success', 'Leave has been ' . $validated['action']);
@@ -192,6 +220,7 @@ class LeaveController extends Controller
     {
         $user = auth()->user();
 
+        // Get leaves that are approved by recommender but pending approver
         $leaves = Leave::where('approver_id', $user->id)
             ->where('approver_status', Leave::STATUS_PENDING)
             ->where('recommender_status', Leave::STATUS_APPROVED)
@@ -199,9 +228,31 @@ class LeaveController extends Controller
             ->latest()
             ->paginate(10);
 
+        // Add summary statistics
+        $totalPending = Leave::where('approver_id', $user->id)
+            ->where('approver_status', Leave::STATUS_PENDING)
+            ->where('recommender_status', Leave::STATUS_APPROVED)
+            ->count();
+
+        $totalFacultyInvolved = Leave::where('approver_id', $user->id)
+            ->where('approver_status', Leave::STATUS_PENDING)
+            ->where('recommender_status', Leave::STATUS_APPROVED)
+            ->distinct('user_id')
+            ->count();
+
+        $totalDaysRequested = Leave::where('approver_id', $user->id)
+            ->where('approver_status', Leave::STATUS_PENDING)
+            ->where('recommender_status', Leave::STATUS_APPROVED)
+            ->sum('total_days');
+
         return Inertia::render('Admin/PendingApprovals', [
             'leaves' => $leaves,
             'leaveTypes' => Leave::LEAVE_TYPES,
+            'stats' => [
+                'pending' => $totalPending,
+                'faculty' => $totalFacultyInvolved,
+                'days' => $totalDaysRequested,
+            ],
         ]);
     }
 

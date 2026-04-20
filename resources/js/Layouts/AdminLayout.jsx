@@ -39,6 +39,12 @@ export default function AdminLayout({ children }) {
             icon: BarChart3,
             active: route().current("admin.leaves.report"),
         },
+        {
+            name: "Annexure Management",
+            href: route("admin.annexures.index"),
+            icon: Briefcase,
+            active: route().current("admin.annexures.*"),
+        },
         { name: "Master Directory", href: "#", icon: Users, active: false },
         { name: "Institute Reports", href: "#", icon: FileText, active: false },
         { name: "Global Settings", href: "#", icon: Settings, active: false },

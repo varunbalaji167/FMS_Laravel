@@ -9,6 +9,7 @@ import {
     Menu,
     X,
     Calendar,
+    FileCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ToastListener from "@/Components/ToastListener";
@@ -31,6 +32,12 @@ export default function FacultyLayout({ children }) {
             href: route("faculty.leaves.index"),
             icon: Calendar,
             active: route().current("faculty.leaves.index"),
+        },
+        {
+            name: "Annexures",
+            href: route("faculty.annexures.index"),
+            icon: FileCheck,
+            active: route().current("faculty.annexures.*"),
         },
         { name: "Service Requests", href: "#", icon: FileText, active: false },
     ];

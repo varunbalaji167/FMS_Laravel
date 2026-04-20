@@ -7,6 +7,7 @@ import {
     Calendar,
     Clock,
     ArrowRight,
+    FileCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -123,20 +124,33 @@ export default function FacultyDashboard({ auth }) {
                     Quick Actions
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Button
-                        variant="outline"
-                        className="h-24 flex flex-col items-center justify-center gap-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 transition-all"
-                    >
-                        <User className="h-6 w-6 text-blue-600" />
-                        <span>Update Profile</span>
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="h-24 flex flex-col items-center justify-center gap-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 transition-all"
-                    >
-                        <Calendar className="h-6 w-6 text-blue-600" />
-                        <span>Apply for Leave</span>
-                    </Button>
+                    <Link href={route("profile.edit")}>
+                        <Button
+                            variant="outline"
+                            className="h-24 w-full flex flex-col items-center justify-center gap-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 transition-all"
+                        >
+                            <User className="h-6 w-6 text-blue-600" />
+                            <span>Update Profile</span>
+                        </Button>
+                    </Link>
+                    <Link href={route("faculty.leaves.create")}>
+                        <Button
+                            variant="outline"
+                            className="h-24 w-full flex flex-col items-center justify-center gap-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 transition-all"
+                        >
+                            <Calendar className="h-6 w-6 text-blue-600" />
+                            <span>Apply for Leave</span>
+                        </Button>
+                    </Link>
+                    <Link href={route("faculty.annexures.create")}>
+                        <Button
+                            variant="outline"
+                            className="h-24 w-full flex flex-col items-center justify-center gap-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 transition-all"
+                        >
+                            <FileCheck className="h-6 w-6 text-blue-600" />
+                            <span>Submit Annexure</span>
+                        </Button>
+                    </Link>
                     <Button
                         variant="outline"
                         className="h-24 flex flex-col items-center justify-center gap-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 transition-all"
