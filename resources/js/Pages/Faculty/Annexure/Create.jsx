@@ -4,7 +4,7 @@ import FacultyLayout from '@/Layouts/FacultyLayout';
 import AnnexureForm from './Form';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 
-export default function Create({ templates = [], faculty = {} }) {
+export default function Create({ templates = [], faculty = {}, dependents = [] }) {
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showForm, setShowForm] = useState(false);
@@ -83,6 +83,7 @@ export default function Create({ templates = [], faculty = {} }) {
                         <AnnexureForm
                             template={selectedTemplate}
                             faculty={faculty}
+                            dependents={dependents}
                             onSubmit={handleFormSubmit}
                             isSubmitting={isSubmitting}
                         />

@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             LeaveBalanceDummySeeder::class,
             LeaveDummySeeder::class,
             AnnexureTemplateSeeder::class,
+            DependentSeeder::class,
+            AnnouncementSeeder::class,
         ]);
     }
 }

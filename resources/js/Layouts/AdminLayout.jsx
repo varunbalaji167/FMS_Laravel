@@ -11,6 +11,7 @@ import {
     X,
     Briefcase,
     BarChart3,
+    Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ToastListener from "@/Components/ToastListener";
@@ -22,7 +23,7 @@ export default function AdminLayout({ children }) {
 
     const navLinks = [
         {
-            name: "DOFA Overview",
+            name: "Admin Overview",
             href: route("admin.dashboard"),
             icon: LayoutDashboard,
             active: route().current("admin.dashboard"),
@@ -44,6 +45,12 @@ export default function AdminLayout({ children }) {
             href: route("admin.annexures.index"),
             icon: Briefcase,
             active: route().current("admin.annexures.*"),
+        },
+        {
+            name: "Notices",
+            href: route("admin.announcements.index"),
+            icon: Bell,
+            active: route().current("admin.announcements.*"),
         },
         { name: "Master Directory", href: "#", icon: Users, active: false },
         { name: "Institute Reports", href: "#", icon: FileText, active: false },
@@ -90,7 +97,7 @@ export default function AdminLayout({ children }) {
                             {user.name}
                         </p>
                         <p className="text-[10px] text-rose-500 font-black uppercase">
-                            DOFA Root
+                            Admin Root
                         </p>
                     </div>
                 </div>
@@ -100,7 +107,7 @@ export default function AdminLayout({ children }) {
                     asChild
                 >
                     <Link href={route("logout")} method="post" as="button">
-                        <LogOut className="h-4 w-4 mr-2" /> Terminate Session
+                        <LogOut className="h-4 w-4 mr-2" /> Logout Session
                     </Link>
                 </Button>
             </div>

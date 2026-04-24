@@ -10,6 +10,7 @@ import {
     Menu,
     X,
     BarChart3,
+    Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ToastListener from "@/Components/ToastListener";
@@ -38,6 +39,12 @@ export default function HodLayout({ children }) {
             href: route("hod.leaves.report"),
             icon: BarChart3,
             active: route().current("hod.leaves.report"),
+        },
+        {
+            name: "Notices",
+            href: route("hod.announcements.index"),
+            icon: Bell,
+            active: route().current("hod.announcements.*"),
         },
         { name: "Appraisal Review", href: "#", icon: Award, active: false },
     ];

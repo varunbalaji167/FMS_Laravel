@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Leave;
 use App\Models\User;
 use App\Models\LeaveLedger;
+use App\Exports\LeaveReportExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use PDF;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LeaveReportController extends Controller
 {
@@ -19,21 +22,17 @@ class LeaveReportController extends Controller
     {
         $user = Auth::user();
         
-        // Get all faculty under this HOD
-        $facultyIds = User::where('hod_id', $user->id)
-            ->where('role', 'faculty')
-            ->pluck('id')
-            ->toArray();
-
-        $leaves = $this->getLeaveQuery($facultyIds)
+        // Get all leaves where this HOD is the recommender
+        $leaves = $this->getLeaveQuery($user->id, 'hod')
             ->with('user')
             ->paginate(15);
 
-        $summary = $this->getLeavesSummary($facultyIds);
+        $stats = $this->getLeavesSummary($user->id, 'hod');
         
         return Inertia::render('Hod/LeaveReport', [
             'leaves' => $leaves,
-            'summary' => $summary,
+            'stats' => $stats,
+            'leaveTypes' => Leave::LEAVE_TYPES,
             'filters' => $request->all(),
         ]);
     }
@@ -43,19 +42,19 @@ class LeaveReportController extends Controller
      */
     public function adminReport(Request $request)
     {
-        // Get all faculty
-        $facultyIds = User::where('role', 'faculty')->pluck('id')->toArray();
-
-        $leaves = $this->getLeaveQuery($facultyIds)
+        // Get all leaves for admin
+        $leaves = $this->getLeaveQuery(null, 'admin')
             ->with('user')
             ->paginate(15);
 
-        $summary = $this->getLeavesSummary($facultyIds);
+        $stats = $this->getLeavesSummary(null, 'admin');
         $departmentSummary = $this->getDepartmentSummary();
         
         return Inertia::render('Admin/LeaveReport', [
             'leaves' => $leaves,
-            'summary' => $summary,
+            'stats' => $stats,
+            'summary' => $stats,
+            'leaveTypes' => Leave::LEAVE_TYPES,
             'departmentSummary' => $departmentSummary,
             'filters' => $request->all(),
         ]);
@@ -68,14 +67,15 @@ class LeaveReportController extends Controller
     {
         $user = Auth::user();
 
-        $leaves = $this->getLeaveQuery([$user->id])
+        $leaves = $this->getLeaveQuery($user->id, 'faculty')
             ->paginate(15);
 
-        $summary = $this->getLeavesSummary([$user->id]);
+        $stats = $this->getLeavesSummary($user->id, 'faculty');
         
         return Inertia::render('Faculty/LeaveReport', [
             'leaves' => $leaves,
-            'summary' => $summary,
+            'stats' => $stats,
+            'leaveTypes' => Leave::LEAVE_TYPES,
             'filters' => $request->all(),
         ]);
     }
@@ -83,9 +83,21 @@ class LeaveReportController extends Controller
     /**
      * Build the base leave query with filters
      */
-    private function getLeaveQuery(array $userIds)
+    private function getLeaveQuery($userId = null, $role = null)
     {
-        $query = Leave::whereIn('user_id', $userIds);
+        $query = Leave::query();
+
+        // Filter based on role
+        if ($role === 'hod') {
+            // HOD sees leaves where they are the recommender
+            $query->where('recommender_id', $userId);
+        } elseif ($role === 'faculty') {
+            // Faculty sees their own leaves
+            $query->where('user_id', $userId);
+        } elseif ($role === 'admin') {
+            // Admin sees all leaves
+            // No additional filter needed
+        }
 
         // Filter by leave type
         if (request('leave_type') && request('leave_type') !== 'all') {
@@ -146,24 +158,10 @@ class LeaveReportController extends Controller
     /**
      * Get summary statistics for selected leaves
      */
-    private function getLeavesSummary(array $userIds)
+    private function getLeavesSummary($userId = null, $role = null)
     {
-        $leaves = Leave::whereIn('user_id', $userIds);
-
-        // Apply filters
-        if (request('leave_type') && request('leave_type') !== 'all') {
-            $leaves->where('leave_type', request('leave_type'));
-        }
-
-        if (request('year')) {
-            $year = request('year');
-            $leaves->whereBetween('start_date', [
-                Carbon::createFromDate($year, 1, 1),
-                Carbon::createFromDate($year, 12, 31),
-            ]);
-        }
-
-        $allLeaves = $leaves->get();
+        // Use the same query as getLeaveQuery for consistency
+        $allLeaves = $this->getLeaveQuery($userId, $role)->get();
 
         return [
             'total_requests' => $allLeaves->count(),
@@ -244,19 +242,18 @@ class LeaveReportController extends Controller
         
         // Determine which leaves to export based on user role
         if ($user->role === 'admin') {
-            $facultyIds = User::where('role', 'faculty')->pluck('id')->toArray();
+            $leaves = $this->getLeaveQuery(null, 'admin')
+                ->with('user')
+                ->get();
         } elseif ($user->role === 'hod') {
-            $facultyIds = User::where('hod_id', $user->id)
-                ->where('role', 'faculty')
-                ->pluck('id')
-                ->toArray();
+            $leaves = $this->getLeaveQuery($user->id, 'hod')
+                ->with('user')
+                ->get();
         } else {
-            $facultyIds = [$user->id];
+            $leaves = $this->getLeaveQuery($user->id, 'faculty')
+                ->with('user')
+                ->get();
         }
-
-        $leaves = $this->getLeaveQuery($facultyIds)
-            ->with('user')
-            ->get();
 
         $fileName = 'leave_report_' . now()->format('Y-m-d_His') . '.csv';
         
@@ -304,5 +301,71 @@ class LeaveReportController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export leave data as PDF
+     */
+    public function exportPDF(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Get leaves based on user role
+        if ($user->role === 'admin') {
+            $leaves = $this->getLeaveQuery(null, 'admin')
+                ->with('user')
+                ->get();
+        } elseif ($user->role === 'hod') {
+            $leaves = $this->getLeaveQuery($user->id, 'hod')
+                ->with('user')
+                ->get();
+        } else {
+            $leaves = $this->getLeaveQuery($user->id, 'faculty')
+                ->with('user')
+                ->get();
+        }
+
+        // Prepare data for PDF
+        $data = [
+            'leaves' => $leaves,
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'report_type' => ucfirst($user->role),
+            'total_records' => $leaves->count(),
+        ];
+
+        $fileName = 'leave_report_' . now()->format('Y-m-d_His') . '.pdf';
+        
+        // Generate PDF
+        $pdf = PDF::loadView('exports.leave_report_pdf', $data);
+        
+        return $pdf->download($fileName);
+    }
+
+    /**
+     * Export leave data as Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Get leaves based on user role
+        if ($user->role === 'admin') {
+            $leaves = $this->getLeaveQuery(null, 'admin')
+                ->with('user')
+                ->get();
+        } elseif ($user->role === 'hod') {
+            $leaves = $this->getLeaveQuery($user->id, 'hod')
+                ->with('user')
+                ->get();
+        } else {
+            $leaves = $this->getLeaveQuery($user->id, 'faculty')
+                ->with('user')
+                ->get();
+        }
+
+        $fileName = 'leave_report_' . now()->format('Y-m-d_His') . '.xlsx';
+        
+        // Export using Maatwebsite\Excel
+        return Excel::download(new LeaveReportExport($leaves), $fileName);
     }
 }

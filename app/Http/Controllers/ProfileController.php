@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Dependent;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,19 @@ class ProfileController extends Controller
     }
 
     /**
+     * Display the faculty profile page with dependents.
+     */
+    public function show(): Response
+    {
+        $user = auth()->user()->load('faculty', 'dependents');
+        
+        return Inertia::render('Faculty/Profile', [
+            'user' => $user,
+            'dependents' => $user->dependents,
+        ]);
+    }
+
+    /**
      * Update the user's profile information.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
@@ -38,6 +52,48 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit');
+    }
+
+    /**
+     * Store a new dependent.
+     */
+    public function storeDependents(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'relationship' => 'required|in:spouse,son,daughter,father,mother,brother,sister,other',
+            'date_of_birth' => 'nullable|date',
+            'contact_number' => 'nullable|string|max:20',
+            'email' => 'nullable|email',
+            'address' => 'nullable|string',
+            'aadhar_number' => 'nullable|string|max:12',
+        ]);
+
+        auth()->user()->dependents()->create($validated);
+
+        return Redirect::route('faculty.profile')->with('success', 'Dependent added successfully.');
+    }
+
+    /**
+     * Update a dependent.
+     */
+    public function updateDependents(Request $request, Dependent $dependent): RedirectResponse
+    {
+        $this->authorize('update', $dependent);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'relationship' => 'required|in:spouse,son,daughter,father,mother,brother,sister,other',
+            'date_of_birth' => 'nullable|date',
+            'contact_number' => 'nullable|string|max:20',
+            'email' => 'nullable|email',
+            'address' => 'nullable|string',
+            'aadhar_number' => 'nullable|string|max:12',
+        ]);
+
+        $dependent->update($validated);
+
+        return Redirect::route('faculty.profile')->with('success', 'Dependent updated successfully.');
     }
 
     /**
@@ -59,5 +115,17 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Delete a dependent.
+     */
+    public function destroyDependents(Dependent $dependent): RedirectResponse
+    {
+        $this->authorize('delete', $dependent);
+
+        $dependent->delete();
+
+        return Redirect::route('faculty.profile')->with('success', 'Dependent removed successfully.');
     }
 }

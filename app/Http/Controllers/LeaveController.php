@@ -102,14 +102,38 @@ class LeaveController extends Controller
     /**
      * Show all leave requests for faculty
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         
-        $leaves = Leave::where('user_id', $user->id)
-            ->with(['recommender', 'approver'])
-            ->latest()
-            ->paginate(10);
+        $query = Leave::where('user_id', $user->id)
+            ->with(['recommender', 'approver']);
+
+        // Filter by status
+        if ($request->get('status')) {
+            $status = $request->get('status');
+            if ($status === 'approved') {
+                $query->where('recommender_status', 'approved')
+                      ->where('approver_status', 'approved');
+            } elseif ($status === 'rejected') {
+                $query->where(function($q) {
+                    $q->where('recommender_status', 'rejected')
+                      ->orWhere('approver_status', 'rejected');
+                });
+            } elseif ($status === 'pending') {
+                $query->where(function($q) {
+                    $q->where('recommender_status', 'pending')
+                      ->orWhere('approver_status', 'pending');
+                });
+            }
+        }
+
+        // Filter by leave type
+        if ($request->get('leave_type')) {
+            $query->where('leave_type', $request->get('leave_type'));
+        }
+
+        $leaves = $query->latest()->paginate(10);
 
         $leaveBalances = LeaveBalance::where('user_id', $user->id)
             ->where('year', now()->year)
@@ -141,6 +165,10 @@ class LeaveController extends Controller
             'recommenders' => $recommenders,
             'approvers' => $approvers,
             'currentYear' => now()->year,
+            'filters' => [
+                'status' => $request->get('status'),
+                'leave_type' => $request->get('leave_type'),
+            ],
         ]);
     }
 
@@ -179,6 +207,68 @@ class LeaveController extends Controller
                 'pending' => $totalPending,
                 'faculty' => $totalFacultyInvolved,
                 'days' => $totalDaysRequested,
+            ],
+        ]);
+    }
+
+    /**
+     * Show all leaves recommended by HOD (report view)
+     */
+    public function hodLeaveReport(Request $request)
+    {
+        $user = auth()->user();
+
+        $query = Leave::where('recommender_id', $user->id)
+            ->with(['user', 'approver']);
+
+        // Filter by status
+        if ($request->get('status')) {
+            $status = $request->get('status');
+            if ($status === 'approved') {
+                $query->where('recommender_status', 'approved');
+            } elseif ($status === 'rejected') {
+                $query->where('recommender_status', 'rejected');
+            } elseif ($status === 'pending') {
+                $query->where('recommender_status', 'pending');
+            }
+        }
+
+        // Filter by leave type
+        if ($request->get('leave_type')) {
+            $query->where('leave_type', $request->get('leave_type'));
+        }
+
+        // Filter by date range
+        if ($request->get('from_date')) {
+            $query->whereDate('start_date', '>=', $request->get('from_date'));
+        }
+        if ($request->get('to_date')) {
+            $query->whereDate('end_date', '<=', $request->get('to_date'));
+        }
+
+        $leaves = $query->latest('created_at')->paginate(15);
+
+        // Calculate statistics
+        $allLeaves = Leave::where('recommender_id', $user->id)->get();
+        
+        $stats = [
+            'total' => $allLeaves->count(),
+            'approved' => $allLeaves->where('recommender_status', 'approved')->count(),
+            'rejected' => $allLeaves->where('recommender_status', 'rejected')->count(),
+            'pending' => $allLeaves->where('recommender_status', 'pending')->count(),
+            'total_days_approved' => $allLeaves->where('recommender_status', 'approved')->sum('total_days'),
+            'total_faculty' => $allLeaves->pluck('user_id')->unique()->count(),
+        ];
+
+        return Inertia::render('Hod/LeaveReport', [
+            'leaves' => $leaves,
+            'leaveTypes' => Leave::LEAVE_TYPES,
+            'stats' => $stats,
+            'filters' => [
+                'status' => $request->get('status'),
+                'leave_type' => $request->get('leave_type'),
+                'from_date' => $request->get('from_date'),
+                'to_date' => $request->get('to_date'),
             ],
         ]);
     }

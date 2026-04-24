@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveReportController;
 use App\Http\Controllers\AnnexureController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AdminAnnexureController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/leaves/{leave}/approve', [LeaveController::class, 'approveLeave'])->name('leaves.approve');
     Route::get('/leaves/report', [LeaveReportController::class, 'adminReport'])->name('leaves.report');
     Route::get('/leaves/report/export', [LeaveReportController::class, 'exportCSV'])->name('leaves.report.export');
+    Route::get('/leaves/report/pdf', [LeaveReportController::class, 'exportPDF'])->name('leaves.report.pdf');
+    Route::get('/leaves/report/excel', [LeaveReportController::class, 'exportExcel'])->name('leaves.report.excel');
+
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
     
     // Annexure routes
     Route::resource('annexures', AdminAnnexureController::class)->only(['index', 'show']);
@@ -56,7 +63,12 @@ Route::middleware(['auth', 'role:hod'])->prefix('hod')->name('hod.')->group(func
     Route::get('/leaves/pending-recommendations', [LeaveController::class, 'pendingRecommendations'])->name('leaves.pending-recommendations');
     Route::post('/leaves/{leave}/recommend', [LeaveController::class, 'recommendLeave'])->name('leaves.recommend');
     Route::get('/leaves/report', [LeaveReportController::class, 'hodReport'])->name('leaves.report');
-    Route::get('/leaves/report/export', [LeaveReportController::class, 'exportCSV'])->name('leaves.report.export');
+    Route::get('/leaves/report/pdf', [LeaveReportController::class, 'exportPDF'])->name('leaves.report.pdf');
+    Route::get('/leaves/report/excel', [LeaveReportController::class, 'exportExcel'])->name('leaves.report.excel');
+
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
 });
 
 
@@ -67,10 +79,17 @@ Route::middleware(['auth', 'role:faculty'])->prefix('faculty')->name('faculty.')
         return Inertia::render('Faculty/Dashboard');
     })->name('dashboard');
     
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::post('/profile/dependents', [ProfileController::class, 'storeDependents'])->name('dependents.store');
+    Route::patch('/profile/dependents/{dependent}', [ProfileController::class, 'updateDependents'])->name('dependents.update');
+    Route::delete('/profile/dependents/{dependent}', [ProfileController::class, 'destroyDependents'])->name('dependents.destroy');
+    
     Route::get('/leaves/apply', [LeaveController::class, 'create'])->name('leaves.create');
     Route::post('/leaves', [LeaveController::class, 'store'])->name('leaves.store');
     Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves.index');
     Route::get('/leaves/report', [LeaveReportController::class, 'facultyReport'])->name('leaves.report');
+
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
     
     // Annexure routes
     Route::resource('annexures', AnnexureController::class);

@@ -13,6 +13,18 @@ function formatDate(value) {
     }
 }
 
+function formatMonthYear(value) {
+    if (!value) return '....................';
+    try {
+        return new Date(value).toLocaleString('en-US', {
+            month: 'long',
+            year: 'numeric',
+        }).toUpperCase();
+    } catch {
+        return value;
+    }
+}
+
 function get(formData, key, fallback = '....................') {
     const val = formData?.[key];
     if (val === undefined || val === null || val === '') return fallback;
@@ -21,6 +33,62 @@ function get(formData, key, fallback = '....................') {
 
 function Section({ children }) {
     return <div className="bg-white border border-gray-300 shadow-sm p-8 md:p-10 text-[15px] leading-relaxed">{children}</div>;
+}
+
+function AnnexureAPassportTemplate({ formData }) {
+    return (
+        <Section>
+            <div className="text-center font-bold text-[18px] mb-1">ANNEXURE ‘A’</div>
+            <div className="text-center text-sm mb-8">-</div>
+
+            <div className="text-[15px] leading-7 space-y-4">
+                <p>
+                    Certified that <b>{get(formData, 'faculty_name')}</b>, son of <b>{get(formData, 'father_name')}</b>, who is an Indian national,
+                    is employed at the Indian Institute of Technology (IIT) Indore, Madhya Pradesh, India, since <b>{formatDate(get(formData, 'doj'))}</b>, as an <b>{get(formData, 'designation')}</b>
+                    in the Department of <b>{get(formData, 'department')}</b> and presently, he is working as a Professor since October 27, 2023.
+                </p>
+
+                <p>
+                    <b>{get(formData, 'dependent_name', 'Dependent Name')}</b>, who is also an Indian national, is a <b>{get(formData, 'dependent_relation', 'spouse')}</b> and dependent family member of
+                    faculty <b>{get(formData, 'faculty_name')}</b>. His/Her identity is certified. This organization has no objection to issue an Indian Passport to him/her.
+                </p>
+
+                <p>
+                    I, the undersigned, am duly authorized to sign this Identity Certificate. I have read the provisions of Section 6(2) of the Passports Act, 1967 and certify that these are not attracted
+                    in case of this applicant. I recommend issue of an Indian Passport to <b>{get(formData, 'dependent_name', 'the applicant')}</b>. It is certified that this organization is a Central Government Autonomous body working under
+                    Ministry of Education, Government of India.
+                </p>
+
+                <p>
+                    The Identity Card Number of <b>{get(formData, 'faculty_name')}</b> is <b>{get(formData, 'idn')}</b>.
+                </p>
+            </div>
+
+            <div className="mt-16 flex items-end justify-between gap-8">
+                <div className="w-20 h-24 border border-gray-700 flex items-center justify-center text-[10px] leading-tight text-center px-2">
+                    Applicant's photo to be attested by certifying authority
+                </div>
+
+                <div className="text-right max-w-[320px] text-[14px] leading-6">
+                    <div className="font-bold">Rajan Thomas</div>
+                    <div>Assistant Registrar, Faculty Affairs</div>
+                    <div>Indian Institute of Technology Indore</div>
+                    <div>Simrol, Khandwa Road, Indore-453552</div>
+                    <div>Madhya Pradesh, India</div>
+                    <div>Office: 0731-660-3509 (Ext. No. 3509)</div>
+                    <div>Email-id: arfacultyaffairs@iiti.ac.in</div>
+                </div>
+            </div>
+
+            <div className="mt-10 flex justify-between items-start text-[13px] font-semibold">
+                <div>
+                    <div>REF. NO.: IIT/FA/PT/40/{new Date().getFullYear()}/</div>
+                    <div>{formatDate(new Date())}</div>
+                </div>
+                <div>{formatMonthYear(new Date())}</div>
+            </div>
+        </Section>
+    );
 }
 
 function AddressProofTemplate({ formData }) {
@@ -270,6 +338,7 @@ export default function AnnexurePdfPreview({ template, formData }) {
     if (code === 'ADDRESS_PROOF') return <AddressProofTemplate formData={formData} />;
     if (code === 'NOC_VISA') return <NocVisaTemplate formData={formData} />;
     if (code === 'BONAFIDE_CERT') return <BonafideTemplate formData={formData} />;
+    if (code === 'ANNEXURE_A_PASSPORT') return <AnnexureAPassportTemplate formData={formData} />;
     if (code === 'ANNEXURE_H_PASSPORT') return <AnnexureHTemplate formData={formData} />;
 
     return <GenericTemplate template={template} formData={formData} />;

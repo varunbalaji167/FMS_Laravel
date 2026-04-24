@@ -79,10 +79,13 @@ export default function ShowAnnexure({ annexure, latestData, latestVersion, audi
                             </button>
                         )}
 
-                        {latestVersion?.file_path && (
-                            <Link href={route('faculty.annexures.download-pdf', annexure?.id)} className="inline-flex items-center px-3 py-2 rounded-md border text-sm hover:bg-gray-50">
+                        {latestVersion?.pdf_path && (
+                            <a
+                                href={route('faculty.annexures.download-pdf', annexure?.id)}
+                                className="inline-flex items-center px-3 py-2 rounded-md border text-sm hover:bg-gray-50"
+                            >
                                 <Download className="w-4 h-4 mr-2" /> Download PDF
-                            </Link>
+                            </a>
                         )}
                     </div>
 
@@ -111,7 +114,17 @@ export default function ShowAnnexure({ annexure, latestData, latestVersion, audi
 
                     {activeTab === 'preview' && (
                         <div className="p-6">
-                            <div className="mb-3 text-sm text-gray-700">Review this generated layout before final submission to admin.</div>
+                            <div className="mb-3 flex items-center justify-between gap-3 text-sm text-gray-700">
+                                <span>Review this generated layout before final submission to admin.</span>
+                                {latestVersion?.pdf_path && (
+                                    <a
+                                        href={route('faculty.annexures.download-pdf', annexure?.id)}
+                                        className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-white hover:bg-blue-700"
+                                    >
+                                        <Download className="w-4 h-4 mr-2" /> Download PDF
+                                    </a>
+                                )}
+                            </div>
                             <AnnexurePdfPreview template={annexure?.template} formData={parsedData} />
                         </div>
                     )}

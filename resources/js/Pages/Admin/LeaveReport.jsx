@@ -3,10 +3,9 @@ import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import { Download, Filter, Search, TrendingUp, BarChart3 } from 'lucide-react';
+import { Download, Filter, Search, TrendingUp, BarChart3, FileText } from 'lucide-react';
 
 export default function LeaveReport({ leaves = { data: [], links: [] }, summary = {}, departmentSummary = {}, filters = {} }) {
-    const [filterOpen, setFilterOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     const [selectedLeaveType, setSelectedLeaveType] = useState(filters?.leave_type || 'all');
     const [selectedStatus, setSelectedStatus] = useState(filters?.status || 'all');
@@ -23,6 +22,24 @@ export default function LeaveReport({ leaves = { data: [], links: [] }, summary 
 
     const handleExport = () => {
         window.location.href = route('admin.leaves.report.export', {
+            search: searchTerm,
+            leave_type: selectedLeaveType,
+            status: selectedStatus,
+            year: selectedYear,
+        });
+    };
+
+    const handleExportPDF = () => {
+        window.location.href = route('admin.leaves.report.pdf', {
+            search: searchTerm,
+            leave_type: selectedLeaveType,
+            status: selectedStatus,
+            year: selectedYear,
+        });
+    };
+
+    const handleExportExcel = () => {
+        window.location.href = route('admin.leaves.report.excel', {
             search: searchTerm,
             leave_type: selectedLeaveType,
             status: selectedStatus,
@@ -62,91 +79,87 @@ export default function LeaveReport({ leaves = { data: [], links: [] }, summary 
                                 <h1 className="text-3xl font-bold text-gray-900">Leave Report</h1>
                                 <p className="text-gray-600 mt-1">Monitor all faculty leave requests across the institution</p>
                             </div>
-                            <PrimaryButton onClick={handleExport} className="flex items-center gap-2">
-                                <Download size={18} />
-                                Export CSV
-                            </PrimaryButton>
+                            <div className="flex gap-2">
+                                <PrimaryButton onClick={handleExportPDF} className="flex items-center gap-2">
+                                    <FileText size={18} />
+                                    Export PDF
+                                </PrimaryButton>
+                                <PrimaryButton onClick={handleExportExcel} className="flex items-center gap-2">
+                                    <Download size={18} />
+                                    Export Excel
+                                </PrimaryButton>
+                            </div>
                         </div>
 
                         {/* Filter Section */}
                         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                            <button
-                                onClick={() => setFilterOpen(!filterOpen)}
-                                className="flex items-center gap-2 text-gray-700 font-semibold hover:text-gray-900"
-                            >
-                                <Filter size={18} />
-                                Filters {filterOpen ? '▼' : '▶'}
-                            </button>
-
-                            {filterOpen && (
-                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Search Faculty
-                                        </label>
-                                        <div className="relative">
-                                            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                                            <input
-                                                type="text"
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                placeholder="Name or email..."
-                                                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Leave Type
-                                        </label>
-                                        <select
-                                            value={selectedLeaveType}
-                                            onChange={(e) => setSelectedLeaveType(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="all">All Types</option>
-                                            {Object.entries(leaveTypes).map(([code, name]) => (
-                                                <option key={code} value={code}>{name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Status
-                                        </label>
-                                        <select
-                                            value={selectedStatus}
-                                            onChange={(e) => setSelectedStatus(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="all">All Statuses</option>
-                                            <option value="approved">Approved</option>
-                                            <option value="pending">Pending</option>
-                                            <option value="rejected">Rejected</option>
-                                            <option value="taken">Taken</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Year
-                                        </label>
-                                        <select
-                                            value={selectedYear}
-                                            onChange={(e) => setSelectedYear(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value={new Date().getFullYear()}>{new Date().getFullYear()}</option>
-                                            <option value={new Date().getFullYear() - 1}>{new Date().getFullYear() - 1}</option>
-                                            <option value={new Date().getFullYear() - 2}>{new Date().getFullYear() - 2}</option>
-                                        </select>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Search Faculty
+                                    </label>
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+                                        <input
+                                            type="text"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            placeholder="Name or email..."
+                                            className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        />
                                     </div>
                                 </div>
-                            )}
 
-                            <div className="mt-4 flex gap-2">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Leave Type
+                                    </label>
+                                    <select
+                                        value={selectedLeaveType}
+                                        onChange={(e) => setSelectedLeaveType(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                        <option value="all">All Types</option>
+                                        {Object.entries(leaveTypes).map(([code, name]) => (
+                                            <option key={code} value={code}>{name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Status
+                                    </label>
+                                    <select
+                                        value={selectedStatus}
+                                        onChange={(e) => setSelectedStatus(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                        <option value="all">All Statuses</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="rejected">Rejected</option>
+                                        <option value="taken">Taken</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Year
+                                    </label>
+                                    <select
+                                        value={selectedYear}
+                                        onChange={(e) => setSelectedYear(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                        <option value={new Date().getFullYear()}>{new Date().getFullYear()}</option>
+                                        <option value={new Date().getFullYear() - 1}>{new Date().getFullYear() - 1}</option>
+                                        <option value={new Date().getFullYear() - 2}>{new Date().getFullYear() - 2}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 flex flex-wrap gap-2">
                                 <PrimaryButton onClick={handleFilter}>Apply Filters</PrimaryButton>
                                 <SecondaryButton onClick={() => {
                                     setSearchTerm('');
@@ -342,16 +355,24 @@ export default function LeaveReport({ leaves = { data: [], links: [] }, summary 
                                     </p>
                                     <div className="flex gap-2">
                                         {leaves.links.map((link, index) => (
-                                            <Link
-                                                key={index}
-                                                href={link.url}
-                                                className={`px-3 py-2 rounded text-sm ${
-                                                    link.active
-                                                        ? 'bg-blue-600 text-white'
-                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                            />
+                                            link.url ? (
+                                                <Link
+                                                    key={index}
+                                                    href={link.url}
+                                                    className={`px-3 py-2 rounded text-sm ${
+                                                        link.active
+                                                            ? 'bg-blue-600 text-white'
+                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                    }`}
+                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                />
+                                            ) : (
+                                                <span
+                                                    key={index}
+                                                    className="px-3 py-2 rounded text-sm bg-gray-100 text-gray-400 opacity-50 cursor-not-allowed"
+                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                />
+                                            )
                                         ))}
                                     </div>
                                 </div>

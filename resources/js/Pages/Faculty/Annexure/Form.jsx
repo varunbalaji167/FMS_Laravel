@@ -7,6 +7,7 @@ export default function AnnexureForm({
     initialData = {}, 
     template, 
     faculty,
+    dependents = [],
     onSubmit,
     isSubmitting = false 
 }) {
@@ -25,11 +26,21 @@ export default function AnnexureForm({
             const autoFillData = { ...initialData };
             const missing = [];
 
+            const preferredDependent = dependents.find(d => (d.relationship || '').toLowerCase() === 'spouse') || dependents[0] || null;
+
             schema.sections?.forEach(section => {
                 section.fields?.forEach(field => {
                     if (field.auto_fill) {
                         // Map database field to form field
                         let value = faculty[field.auto_fill];
+
+                        if (!value && preferredDependent && field.auto_fill === 'dependent_name') {
+                            value = preferredDependent.name;
+                        }
+
+                        if (!value && preferredDependent && field.auto_fill === 'dependent_relation') {
+                            value = preferredDependent.relationship;
+                        }
                         
                         // Handle date formatting
                         if (field.type === 'date' && value) {

@@ -10,6 +10,7 @@ import {
     X,
     Calendar,
     FileCheck,
+    Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ToastListener from "@/Components/ToastListener";
@@ -26,7 +27,7 @@ export default function FacultyLayout({ children }) {
             icon: LayoutDashboard,
             active: route().current("faculty.dashboard"),
         },
-        { name: "My Profile", href: "#", icon: User, active: false },
+        { name: "My Profile", href: route("faculty.profile"), icon: User, active: route().current("faculty.profile") },
         {
             name: "Leaves",
             href: route("faculty.leaves.index"),
@@ -38,6 +39,12 @@ export default function FacultyLayout({ children }) {
             href: route("faculty.annexures.index"),
             icon: FileCheck,
             active: route().current("faculty.annexures.*"),
+        },
+        {
+            name: "Notices",
+            href: route("faculty.announcements.index"),
+            icon: Bell,
+            active: route().current("faculty.announcements.*"),
         },
         { name: "Service Requests", href: "#", icon: FileText, active: false },
     ];
@@ -86,6 +93,14 @@ export default function FacultyLayout({ children }) {
                         </p>
                     </div>
                 </div>
+                <Button
+                    className="w-full bg-slate-700 text-white hover:bg-blue-600 border-none transition-all mb-2"
+                    asChild
+                >
+                    <Link href={route("faculty.profile")}>
+                        <User className="h-4 w-4 mr-2" /> My Profile
+                    </Link>
+                </Button>
                 <Button
                     variant="destructive"
                     className="w-full bg-slate-800 text-slate-300 hover:bg-red-600 hover:text-white border-none transition-all"

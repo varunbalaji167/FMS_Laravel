@@ -21,17 +21,36 @@ class AnnexureController extends Controller
     /**
      * List faculty annexure requests
      */
-    public function index()
+    public function index(Request $request)
     {
-        $requests = AnnexureRequest::byUser(auth()->id())
+        $requestsQuery = AnnexureRequest::byUser(auth()->id())
             ->with('template', 'currentVersion')
-            ->latest()
-            ->paginate(15);
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = trim($request->string('search'));
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('title', 'like', "%{$search}%")
+                        ->orWhere('reference_number', 'like', "%{$search}%")
+                        ->orWhereHas('template', function ($templateQuery) use ($search) {
+                            $templateQuery->where('name', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->when($request->filled('status'), function ($query) use ($request) {
+                if ($request->status !== 'all') {
+                    $query->where('status', $request->status);
+                }
+            })
+            ->when($request->filled('template'), function ($query) use ($request) {
+                $query->where('annexure_template_id', $request->template);
+            });
+
+        $requests = $requestsQuery->latest()->paginate(15)->withQueryString();
 
         return Inertia::render('Faculty/Annexure/Index', [
             'requests' => $requests,
+            'filters' => $request->only(['search', 'status', 'template']),
             'stats' => [
-                'total' => $requests->total(),
+                'total' => $requestsQuery->count(),
                 'draft' => AnnexureRequest::byUser(auth()->id())->byStatus('draft')->count(),
                 'submitted' => AnnexureRequest::byUser(auth()->id())->byStatus('submitted')->count(),
                 'pending' => AnnexureRequest::byUser(auth()->id())->pendingReview()->count(),
@@ -60,25 +79,30 @@ class AnnexureController extends Controller
     {
         $templates = AnnexureTemplate::active()->get();
         $user = auth()->user();
-        $faculty = $user->faculty;
+        $faculty = $user->faculty?->load('user');
+        $dependents = $user->dependents()->get();
 
         return Inertia::render('Faculty/Annexure/Create', [
             'templates' => $templates,
             'faculty' => $faculty ? [
                 'id' => $faculty->id,
                 'name' => $faculty->full_name ?? $user->name,
+                'father_name' => $faculty->father_name ?? '',
                 'designation' => $faculty->present_designation ?? $faculty->designation_at_joining,
                 'department' => $faculty->department,
                 'doj' => $faculty->doj,
-                'father_name' => $faculty->father_name ?? '',
                 'office_address' => $faculty->current_address ?? '',
                 'date_of_birth' => $faculty->date_of_birth,
+                'passport_number' => $faculty->passport_number ?? '',
+                'idn' => $faculty->idn ?? '',
+                'ptn' => $faculty->ptn ?? '',
                 'email' => $user->email,
                 'contact' => $faculty->contact_number ?? '',
             ] : [
                 'name' => $user->name,
                 'email' => $user->email,
             ],
+            'dependents' => $dependents,
         ]);
     }
 

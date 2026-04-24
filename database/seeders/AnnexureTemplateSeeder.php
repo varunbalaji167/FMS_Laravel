@@ -53,7 +53,7 @@ class AnnexureTemplateSeeder extends Seeder
                 'code' => 'ANNEXURE_A_PASSPORT',
                 'description' => 'Identity certificate for passport application',
                 'json_schema' => json_encode([
-                    'auto_fill_fields' => ['name', 'father_name', 'doj', 'designation', 'department'],
+                    'auto_fill_fields' => ['name', 'father_name', 'doj', 'designation', 'department', 'passport_number', 'idn'],
                     'sections' => [
                         [
                             'name' => 'Faculty Information (Auto-filled)',
@@ -63,13 +63,15 @@ class AnnexureTemplateSeeder extends Seeder
                                 ['name' => 'doj', 'label' => 'Date of Joining', 'type' => 'date', 'required' => true, 'auto_fill' => 'doj', 'readonly' => true],
                                 ['name' => 'designation', 'label' => 'Designation', 'type' => 'text', 'required' => true, 'auto_fill' => 'designation', 'readonly' => true],
                                 ['name' => 'department', 'label' => 'Department', 'type' => 'text', 'required' => true, 'auto_fill' => 'department', 'readonly' => true],
+                                ['name' => 'passport_number', 'label' => 'Passport Number', 'type' => 'text', 'required' => false, 'auto_fill' => 'passport_number', 'readonly' => true],
+                                ['name' => 'idn', 'label' => 'Identity Card Number', 'type' => 'text', 'required' => false, 'auto_fill' => 'idn', 'readonly' => true],
                             ]
                         ],
                         [
                             'name' => 'Dependent Information',
                             'fields' => [
-                                ['name' => 'dependent_name', 'label' => 'Dependent Name', 'type' => 'text', 'required' => true],
-                                ['name' => 'dependent_relation', 'label' => 'Relationship', 'type' => 'select', 'required' => true, 'options' => ['Spouse', 'Daughter', 'Son', 'Parent', 'Other']],
+                                ['name' => 'dependent_name', 'label' => 'Dependent Name', 'type' => 'text', 'required' => true, 'auto_fill' => 'dependent_name', 'readonly' => true],
+                                ['name' => 'dependent_relation', 'label' => 'Relationship', 'type' => 'select', 'required' => true, 'auto_fill' => 'dependent_relation', 'readonly' => true, 'options' => ['Spouse', 'Daughter', 'Son', 'Parent', 'Other']],
                             ]
                         ]
                     ]

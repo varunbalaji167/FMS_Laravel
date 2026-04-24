@@ -1,339 +1,378 @@
 import { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import {
+    Building2,
+    CheckCircle,
+    XCircle,
+    Clock,
+    Filter,
+    Users,
+    Calendar,
+    TrendingUp,
+    Download,
+    FileText,
+} from 'lucide-react';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/Components/ui/card';
 import HodLayout from '@/Layouts/HodLayout';
-import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
-import { Download, Filter, Search, TrendingUp } from 'lucide-react';
 
-export default function LeaveReport({ leaves = { data: [], links: [] }, summary = {}, filters = {} }) {
-    const [filterOpen, setFilterOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(filters?.search || '');
-    const [selectedLeaveType, setSelectedLeaveType] = useState(filters?.leave_type || 'all');
-    const [selectedStatus, setSelectedStatus] = useState(filters?.status || 'all');
-    const [selectedYear, setSelectedYear] = useState(filters?.year || new Date().getFullYear());
+const getStatusColor = (status) => {
+    switch (status) {
+        case 'approved':
+            return 'text-green-600 bg-green-50';
+        case 'rejected':
+            return 'text-red-600 bg-red-50';
+        case 'pending':
+            return 'text-yellow-600 bg-yellow-50';
+        default:
+            return 'text-gray-600 bg-gray-50';
+    }
+};
 
-    const handleFilter = () => {
-        router.get(route('hod.leaves.report'), {
-            search: searchTerm,
-            leave_type: selectedLeaveType,
-            status: selectedStatus,
-            year: selectedYear,
-        }, { preserveScroll: true });
+const getStatusIcon = (status) => {
+    switch (status) {
+        case 'approved':
+            return <CheckCircle className="h-4 w-4" />;
+        case 'rejected':
+            return <XCircle className="h-4 w-4" />;
+        case 'pending':
+            return <Clock className="h-4 w-4" />;
+        default:
+            return <Clock className="h-4 w-4" />;
+    }
+};
+
+const getStatusLabel = (status) => {
+    switch (status) {
+        case 'approved':
+            return 'Approved';
+        case 'rejected':
+            return 'Rejected';
+        case 'pending':
+            return 'Pending';
+        default:
+            return 'Pending';
+    }
+};
+
+export default function LeaveReport({ leaves, leaveTypes, stats = {}, filters = {} }) {
+    const leaveItems = Array.isArray(leaves?.data) ? leaves.data : [];
+    const [statusFilter, setStatusFilter] = useState(filters.status || '');
+    const [leaveTypeFilter, setLeaveTypeFilter] = useState(filters.leave_type || '');
+    const [fromDate, setFromDate] = useState(filters.from_date || '');
+    const [toDate, setToDate] = useState(filters.to_date || '');
+
+    const handleApplyFilters = () => {
+        const params = new URLSearchParams();
+        if (statusFilter) params.append('status', statusFilter);
+        if (leaveTypeFilter) params.append('leave_type', leaveTypeFilter);
+        if (fromDate) params.append('from_date', fromDate);
+        if (toDate) params.append('to_date', toDate);
+        router.get(route('hod.leaves.report'), Object.fromEntries(params));
     };
 
-    const handleExport = () => {
-        window.location.href = route('hod.leaves.report.export', {
-            search: searchTerm,
-            leave_type: selectedLeaveType,
-            status: selectedStatus,
-            year: selectedYear,
-        });
+    const handleResetFilters = () => {
+        setStatusFilter('');
+        setLeaveTypeFilter('');
+        setFromDate('');
+        setToDate('');
+        router.get(route('hod.leaves.report'));
     };
 
-    const leaveTypes = {
-        'CL': 'Casual Leave',
-        'SL': 'Sick Leave',
-        'EL': 'Earned Leave',
-        'ML': 'Maternity Leave',
-        'PL': 'Paternity Leave',
-        'BL': 'Bereavement Leave',
-        'OL': 'Other Leave',
+    const handleExportPDF = () => {
+        const params = new URLSearchParams();
+        if (statusFilter) params.append('status', statusFilter);
+        if (leaveTypeFilter) params.append('leave_type', leaveTypeFilter);
+        if (fromDate) params.append('from_date', fromDate);
+        if (toDate) params.append('to_date', toDate);
+        window.location.href = route('hod.leaves.report.pdf', Object.fromEntries(params));
     };
 
-    const statusBadge = (status) => {
-        const classes = {
-            'approved': 'bg-green-100 text-green-800',
-            'pending': 'bg-yellow-100 text-yellow-800',
-            'rejected': 'bg-red-100 text-red-800',
-        };
-        return classes[status] || 'bg-gray-100 text-gray-800';
+    const handleExportExcel = () => {
+        const params = new URLSearchParams();
+        if (statusFilter) params.append('status', statusFilter);
+        if (leaveTypeFilter) params.append('leave_type', leaveTypeFilter);
+        if (fromDate) params.append('from_date', fromDate);
+        if (toDate) params.append('to_date', toDate);
+        window.location.href = route('hod.leaves.report.excel', Object.fromEntries(params));
     };
 
     return (
         <HodLayout>
-            <Head title="Leave Report" />
+            <div className="max-w-7xl mx-auto space-y-6">
+                {/* Header with Export Buttons */}
+                <div className="flex justify-between items-start">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">Leave Recommendations Report</h1>
+                        <p className="text-gray-600 mt-1">View all leaves you have recommended and their statuses</p>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button
+                            onClick={handleExportPDF}
+                            className="bg-red-600 hover:bg-red-700 flex items-center gap-2"
+                        >
+                            <FileText className="h-4 w-4" />
+                            Export PDF
+                        </Button>
+                        <Button
+                            onClick={handleExportExcel}
+                            className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
+                        >
+                            <Download className="h-4 w-4" />
+                            Export Excel
+                        </Button>
+                    </div>
+                </div>
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                    {/* Header */}
-                    <div className="bg-white shadow-sm sm:rounded-lg p-6">
-                        <div className="flex justify-between items-center mb-6">
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-gray-900">{stats.total || 0}</p>
+                                <p className="text-xs text-gray-500 mt-1">Total Recommended</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-green-600">{stats.approved || 0}</p>
+                                <p className="text-xs text-gray-500 mt-1">Approved</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-red-600">{stats.rejected || 0}</p>
+                                <p className="text-xs text-gray-500 mt-1">Rejected</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-yellow-600">{stats.pending || 0}</p>
+                                <p className="text-xs text-gray-500 mt-1">Pending</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-blue-600">{stats.total_days_approved || 0}</p>
+                                <p className="text-xs text-gray-500 mt-1">Approved Days</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-purple-600">{stats.total_faculty || 0}</p>
+                                <p className="text-xs text-gray-500 mt-1">Faculty Members</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Filter Section */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Filter className="h-5 w-5" />
+                            Filter Report
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Leave Report</h1>
-                                <p className="text-gray-600 mt-1">Monitor your department's leave requests and approvals</p>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Status
+                                </label>
+                                <select
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="pending">Pending</option>
+                                </select>
                             </div>
-                            <PrimaryButton onClick={handleExport} className="flex items-center gap-2">
-                                <Download size={18} />
-                                Export CSV
-                            </PrimaryButton>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Leave Type
+                                </label>
+                                <select
+                                    value={leaveTypeFilter}
+                                    onChange={(e) => setLeaveTypeFilter(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                >
+                                    <option value="">All Types</option>
+                                    {Object.entries(leaveTypes || {}).map(([code, info]) => (
+                                        <option key={code} value={code}>
+                                            {code} - {info.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    From Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={fromDate}
+                                    onChange={(e) => setFromDate(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    To Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={toDate}
+                                    onChange={(e) => setToDate(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                />
+                            </div>
                         </div>
-
-                        {/* Filter Section */}
-                        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                            <button
-                                onClick={() => setFilterOpen(!filterOpen)}
-                                className="flex items-center gap-2 text-gray-700 font-semibold hover:text-gray-900"
+                        <div className="flex gap-2 mt-4">
+                            <Button
+                                onClick={handleApplyFilters}
+                                className="bg-blue-600 hover:bg-blue-700"
                             >
-                                <Filter size={18} />
-                                Filters {filterOpen ? '▼' : '▶'}
-                            </button>
-
-                            {filterOpen && (
-                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Search Faculty
-                                        </label>
-                                        <div className="relative">
-                                            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                                            <input
-                                                type="text"
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                placeholder="Name or email..."
-                                                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Leave Type
-                                        </label>
-                                        <select
-                                            value={selectedLeaveType}
-                                            onChange={(e) => setSelectedLeaveType(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="all">All Types</option>
-                                            {Object.entries(leaveTypes).map(([code, name]) => (
-                                                <option key={code} value={code}>{name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Status
-                                        </label>
-                                        <select
-                                            value={selectedStatus}
-                                            onChange={(e) => setSelectedStatus(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="all">All Statuses</option>
-                                            <option value="approved">Approved</option>
-                                            <option value="pending">Pending</option>
-                                            <option value="rejected">Rejected</option>
-                                            <option value="taken">Taken</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Year
-                                        </label>
-                                        <select
-                                            value={selectedYear}
-                                            onChange={(e) => setSelectedYear(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value={new Date().getFullYear()}>{new Date().getFullYear()}</option>
-                                            <option value={new Date().getFullYear() - 1}>{new Date().getFullYear() - 1}</option>
-                                            <option value={new Date().getFullYear() - 2}>{new Date().getFullYear() - 2}</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                Apply Filters
+                            </Button>
+                            {(statusFilter || leaveTypeFilter || fromDate || toDate) && (
+                                <Button
+                                    onClick={handleResetFilters}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-700"
+                                >
+                                    Reset
+                                </Button>
                             )}
-
-                            <div className="mt-4 flex gap-2">
-                                <PrimaryButton onClick={handleFilter}>Apply Filters</PrimaryButton>
-                                <SecondaryButton onClick={() => {
-                                    setSearchTerm('');
-                                    setSelectedLeaveType('all');
-                                    setSelectedStatus('all');
-                                    setSelectedYear(new Date().getFullYear());
-                                    router.get(route('hod.leaves.report'));
-                                }}>Clear Filters</SecondaryButton>
-                            </div>
                         </div>
-                    </div>
+                    </CardContent>
+                </Card>
 
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                        <SummaryCard
-                            title="Total Requests"
-                            value={summary.total_requests}
-                            color="blue"
-                            icon={<TrendingUp />}
-                        />
-                        <SummaryCard
-                            title="Approved"
-                            value={summary.approved}
-                            color="green"
-                        />
-                        <SummaryCard
-                            title="Pending"
-                            value={summary.pending}
-                            color="yellow"
-                        />
-                        <SummaryCard
-                            title="Rejected"
-                            value={summary.rejected}
-                            color="red"
-                        />
-                        <SummaryCard
-                            title="Total Days"
-                            value={summary.total_days}
-                            color="purple"
-                        />
-                    </div>
-
-                    {/* Leave Type Summary */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="bg-white shadow-sm sm:rounded-lg p-6">
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Leaves by Type</h2>
-                            <div className="space-y-3">
-                                {Object.entries(summary.by_leave_type).map(([code, data]) => (
-                                    <div key={code} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                                        <div>
-                                            <p className="font-semibold text-gray-900">{data.name}</p>
-                                            <p className="text-sm text-gray-600">{data.count} requests • {data.days} days</p>
-                                        </div>
-                                        <span className="text-sm font-semibold text-green-600">{data.approved} approved</span>
-                                    </div>
-                                ))}
+                {/* Leave Records Table */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Leave Records ({leaveItems.length})</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {leaveItems.length === 0 ? (
+                            <div className="py-12 text-center">
+                                <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                                <p className="text-gray-500">No leave records found</p>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-gray-50 border-b border-gray-200">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Faculty</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Leave Type</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Dates</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Days</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Status</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Admin Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200">
+                                        {leaveItems.map((leave) => {
+                                            const startDate = new Date(leave.start_date).toLocaleDateString();
+                                            const endDate = new Date(leave.end_date).toLocaleDateString();
+                                            const hodStatus = leave.recommender_status;
+                                            const adminStatus = leave.approver_status;
 
-                        <div className="bg-white shadow-sm sm:rounded-lg p-6">
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">By Status</h2>
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center p-3 bg-green-50 rounded">
-                                    <p className="font-semibold text-gray-900">Approved</p>
-                                    <p className="text-lg font-bold text-green-600">{summary.by_status.approved.count}</p>
-                                </div>
-                                <div className="flex justify-between items-center p-3 bg-yellow-50 rounded">
-                                    <p className="font-semibold text-gray-900">Pending Admin</p>
-                                    <p className="text-lg font-bold text-yellow-600">{summary.by_status.pending_approver.count}</p>
-                                </div>
-                                <div className="flex justify-between items-center p-3 bg-orange-50 rounded">
-                                    <p className="font-semibold text-gray-900">Pending HOD</p>
-                                    <p className="text-lg font-bold text-orange-600">{summary.by_status.pending_recommender.count}</p>
-                                </div>
-                                <div className="flex justify-between items-center p-3 bg-red-50 rounded">
-                                    <p className="font-semibold text-gray-900">Rejected</p>
-                                    <p className="text-lg font-bold text-red-600">{summary.by_status.rejected.count}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Leaves Table */}
-                    <div className="bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6">
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Leave Requests</h2>
-
-                            {leaves.data.length === 0 ? (
-                                <div className="text-center py-8">
-                                    <p className="text-gray-500 text-lg">No leave requests found.</p>
-                                </div>
-                            ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Faculty</th>
-                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Leave Type</th>
-                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Dates</th>
-                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Days</th>
-                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">HOD</th>
-                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Admin</th>
-                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Applied</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200">
-                                            {leaves.data.map((leave) => (
-                                                <tr key={leave.id} className="hover:bg-gray-50">
-                                                    <td className="px-6 py-4">
-                                                        <div>
-                                                            <p className="font-semibold text-gray-900">{leave.user.name}</p>
-                                                            <p className="text-sm text-gray-600">{leave.user.email}</p>
-                                                        </div>
+                                            return (
+                                                <tr key={leave.id} className="hover:bg-gray-50 transition">
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <div className="font-medium text-gray-900">{leave.user?.name}</div>
+                                                        <div className="text-xs text-gray-500">{leave.user?.email}</div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                                        {leaveTypes[leave.leave_type]}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                                        {new Date(leave.start_date).toLocaleDateString()} - {new Date(leave.end_date).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-900 font-semibold">
-                                                        {leave.total_days}
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${statusBadge(leave.recommender_status)}`}>
-                                                            {leave.recommender_status}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${statusBadge(leave.approver_status)}`}>
-                                                            {leave.approver_status}
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                                                            {leave.leave_type}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-sm text-gray-600">
-                                                        {new Date(leave.created_at).toLocaleDateString()}
+                                                        {startDate} to {endDate}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                                        {leave.total_days} days
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(hodStatus)}`}>
+                                                            {getStatusIcon(hodStatus)}
+                                                            {getStatusLabel(hodStatus)}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(adminStatus)}`}>
+                                                            {getStatusIcon(adminStatus)}
+                                                            {getStatusLabel(adminStatus)}
+                                                        </span>
                                                     </td>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
 
-                            {/* Pagination */}
-                            {leaves.links && leaves.links.length > 0 && (
-                                <div className="mt-6 flex justify-between items-center">
-                                    <p className="text-sm text-gray-600">
-                                        Showing {leaves.from} to {leaves.to} of {leaves.total} records
-                                    </p>
-                                    <div className="flex gap-2">
-                                        {leaves.links.map((link, index) => (
-                                            <Link
-                                                key={index}
-                                                href={link.url}
-                                                className={`px-3 py-2 rounded text-sm ${
-                                                    link.active
-                                                        ? 'bg-blue-600 text-white'
-                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
+                {/* Pagination */}
+                {leaves?.last_page > 1 && (
+                    <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-600">
+                            Page {leaves.current_page} of {leaves.last_page}
+                        </div>
+                        <div className="flex gap-2">
+                            {leaves.current_page > 1 && (
+                                <Button
+                                    onClick={() => {
+                                        const params = new URLSearchParams();
+                                        params.append('page', leaves.current_page - 1);
+                                        if (statusFilter) params.append('status', statusFilter);
+                                        if (leaveTypeFilter) params.append('leave_type', leaveTypeFilter);
+                                        if (fromDate) params.append('from_date', fromDate);
+                                        if (toDate) params.append('to_date', toDate);
+                                        router.get(route('hod.leaves.report'), Object.fromEntries(params));
+                                    }}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-700"
+                                >
+                                    Previous
+                                </Button>
+                            )}
+                            {leaves.current_page < leaves.last_page && (
+                                <Button
+                                    onClick={() => {
+                                        const params = new URLSearchParams();
+                                        params.append('page', leaves.current_page + 1);
+                                        if (statusFilter) params.append('status', statusFilter);
+                                        if (leaveTypeFilter) params.append('leave_type', leaveTypeFilter);
+                                        if (fromDate) params.append('from_date', fromDate);
+                                        if (toDate) params.append('to_date', toDate);
+                                        router.get(route('hod.leaves.report'), Object.fromEntries(params));
+                                    }}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-700"
+                                >
+                                    Next
+                                </Button>
                             )}
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </HodLayout>
-    );
-}
-
-function SummaryCard({ title, value, color, icon }) {
-    const colorClasses = {
-        blue: 'bg-blue-50 text-blue-900 border-blue-200',
-        green: 'bg-green-50 text-green-900 border-green-200',
-        yellow: 'bg-yellow-50 text-yellow-900 border-yellow-200',
-        red: 'bg-red-50 text-red-900 border-red-200',
-        purple: 'bg-purple-50 text-purple-900 border-purple-200',
-    };
-
-    return (
-        <div className={`border rounded-lg p-4 ${colorClasses[color]}`}>
-            {icon && <div className="mb-2">{icon}</div>}
-            <p className="text-sm font-medium opacity-75">{title}</p>
-            <p className="text-3xl font-bold">{value}</p>
-        </div>
     );
 }

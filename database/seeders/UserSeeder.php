@@ -42,6 +42,7 @@ class UserSeeder extends Seeder
         Faculty::create([
             'user_id' => $facultyUser->id,
             'full_name' => 'Dr. John Doe',
+            'father_name' => 'Mr. Robert Doe',
             'avatar_url' => 'https://via.placeholder.com/150',
             'department' => 'Computer Science and Engineering',
             'employee_id' => 'EMP001',

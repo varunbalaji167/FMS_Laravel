@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\LeaveBalance;
+use App\Models\LeaveLedger;
 use App\Models\Leave;
 use Illuminate\Database\Seeder;
 
@@ -19,7 +20,7 @@ class LeaveBalanceSeeder extends Seeder
         $currentYear = now()->year;
 
         foreach ($users as $user) {
-            // Create leave balances for each leave type
+            // Create leave balances and ledger entries for each leave type
             foreach (Leave::LEAVE_TYPES as $leaveType => $leaveInfo) {
                 LeaveBalance::firstOrCreate(
                     [
@@ -32,6 +33,20 @@ class LeaveBalanceSeeder extends Seeder
                         'used' => 0,
                         'pending' => 0,
                         'balance' => $leaveInfo['annual'],
+                    ]
+                );
+
+                // Create initial allocation ledger entry if not exists
+                LeaveLedger::firstOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'leave_type' => $leaveType,
+                        'reason' => LeaveLedger::REASON_ALLOCATION,
+                        'leave_request_id' => null,
+                    ],
+                    [
+                        'change' => $leaveInfo['annual'],
+                        'created_at' => now(),
                     ]
                 );
             }
