@@ -82,7 +82,7 @@ The **Faculty Management System (FMS)** is a full-stack web application designed
 | **Database** | MySQL / MariaDB |
 | **ORM** | Eloquent |
 | **Authentication** | Laravel Breeze |
-| **Containerization** | Docker (compose.yaml) |
+| **Containerization** | Docker (Sail) |
 
 ---
 
@@ -168,7 +168,7 @@ Visit **http://localhost:8000** in your browser.
 
 ---
 
-### Option 2 — Docker Setup
+### Option 2 — Docker / Laravel Sail Setup
 
 ```bash
 git clone https://github.com/varunbalaji167/FMS_Laravel.git
@@ -176,11 +176,11 @@ cd FMS_Laravel
 
 cp .env.example .env
 
-docker compose up -d
+./vendor/bin/sail up -d
 
-docker compose exec app php artisan key:generate
-docker compose exec app php artisan migrate --seed
-docker compose exec app php artisan storage:link
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate --seed
+./vendor/bin/sail artisan storage:link
 ```
 
 Visit **http://localhost:8000** in your browser.
@@ -211,6 +211,13 @@ php artisan serve
 
 # In a separate terminal, start Vite dev server
 npm run dev
+```
+
+If you are using Sail:
+
+```bash
+./vendor/bin/sail up -d
+./vendor/bin/sail npm run dev
 ```
 
 ---
@@ -272,6 +279,12 @@ Please make sure your code follows the existing style and that all tests pass be
 
 ```bash
 php artisan test
+```
+
+Or with Sail:
+
+```bash
+./vendor/bin/sail artisan test
 ```
 
 ---
