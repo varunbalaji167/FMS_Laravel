@@ -57,7 +57,11 @@ export default function Welcome({ auth }) {
                                     className="bg-slate-900 text-white hover:bg-blue-600 transition-all shadow-md rounded-full px-6"
                                     asChild
                                 >
-                                    <Link href={route("dashboard")}>
+                                    <Link href={route(
+                                        user.role === 'admin' ? 'admin.dashboard' :
+                                        user.role === 'hod' ? 'hod.dashboard' :
+                                        'faculty.dashboard'
+                                    )}>
                                         Dashboard{" "}
                                         <ChevronRight className="ml-1 h-4 w-4" />
                                     </Link>
@@ -141,7 +145,11 @@ export default function Welcome({ auth }) {
                                     className="h-16 px-10 text-lg bg-blue-600 text-white hover:bg-blue-500 rounded-full shadow-2xl shadow-blue-600/30 transition-all group"
                                     asChild
                                 >
-                                    <Link href={route("dashboard")}>
+                                    <Link href={route(
+                                        user.role === 'admin' ? 'admin.dashboard' :
+                                        user.role === 'hod' ? 'hod.dashboard' :
+                                        'faculty.dashboard'
+                                    )}>
                                         Access Workspace{" "}
                                         <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                                     </Link>

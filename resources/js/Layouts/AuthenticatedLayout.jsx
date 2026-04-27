@@ -25,8 +25,8 @@ export default function AuthenticatedLayout({ header, children }) {
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
-                                    href={route("dashboard")}
-                                    active={route().current("dashboard")}
+                                    href={route("faculty.dashboard")}
+                                    active={route().current("faculty.dashboard")}
                                 >
                                     Dashboard
                                 </NavLink>
@@ -35,6 +35,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                     active={route().current("faculty.leaves.report")}
                                 >
                                     My Leaves
+                                </NavLink>
+                                <NavLink
+                                    href={route("faculty.annexures.index")}
+                                    active={route().current("faculty.annexures.*")}
+                                >
+                                    Annexures
                                 </NavLink>
                             </div>
                         </div>
@@ -135,8 +141,8 @@ export default function AuthenticatedLayout({ header, children }) {
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
-                            href={route("dashboard")}
-                            active={route().current("dashboard")}
+                            href={route("faculty.dashboard")}
+                            active={route().current("faculty.dashboard")}
                         >
                             Dashboard
                         </ResponsiveNavLink>

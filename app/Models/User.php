@@ -44,4 +44,14 @@ class User extends Authenticatable
     {
         return $this->role === 'faculty';
     }
+
+    public function faculty()
+    {
+        return $this->hasOne(Faculty::class);
+    }
+
+    public function dependents()
+    {
+        return $this->hasMany(Dependent::class);
+    }
 }

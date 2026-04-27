@@ -111,7 +111,7 @@ export default function AdminDashboard({ auth }) {
                                 28
                             </div>
                             <p className="text-xs text-slate-500 mt-1 font-medium">
-                                Under DOFA review
+                                Under Admin review
                             </p>
                         </CardContent>
                     </Card>
@@ -156,7 +156,7 @@ export default function AdminDashboard({ auth }) {
                                                 HOD Physics
                                             </span>{" "}
                                             approved a travel grant for Dr. A.
-                                            Sharma. Awaiting DOFA final
+                                            Sharma. Awaiting Admin final
                                             sign-off.
                                         </p>
                                     </div>

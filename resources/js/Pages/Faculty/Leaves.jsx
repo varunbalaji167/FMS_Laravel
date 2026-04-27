@@ -1,4 +1,4 @@
-import { Head, useForm } from "@inertiajs/react";
+import { Head, useForm, router } from "@inertiajs/react";
 import {
     Building2,
     Clock,
@@ -11,6 +11,7 @@ import {
     Upload,
     X,
     User,
+    Filter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -502,9 +503,25 @@ export default function Leaves({
     recommenders,
     approvers,
     currentYear,
+    filters = {},
 }) {
     const leaveItems = Array.isArray(leaves?.data) ? leaves.data : [];
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [statusFilter, setStatusFilter] = useState(filters.status || '');
+    const [leaveTypeFilter, setLeaveTypeFilter] = useState(filters.leave_type || '');
+
+    const handleFilterChange = () => {
+        const params = new URLSearchParams();
+        if (statusFilter) params.append('status', statusFilter);
+        if (leaveTypeFilter) params.append('leave_type', leaveTypeFilter);
+        router.get(route('faculty.leaves.index'), Object.fromEntries(params));
+    };
+
+    const handleResetFilters = () => {
+        setStatusFilter('');
+        setLeaveTypeFilter('');
+        router.get(route('faculty.leaves.index'));
+    };
 
     const stats = {
         total: leaveItems.length,
@@ -585,6 +602,68 @@ export default function Leaves({
                                     </div>
                                 );
                             })}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Filter Section */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Filter className="h-5 w-5" />
+                            Filter Requests
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    Status
+                                </label>
+                                <select
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    Leave Type
+                                </label>
+                                <select
+                                    value={leaveTypeFilter}
+                                    onChange={(e) => setLeaveTypeFilter(e.target.value)}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                >
+                                    <option value="">All Types</option>
+                                    {Object.entries(leaveTypes || {}).map(([code, info]) => (
+                                        <option key={code} value={code}>
+                                            {code} - {info.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex items-end gap-2">
+                                <Button
+                                    onClick={handleFilterChange}
+                                    className="bg-blue-600 hover:bg-blue-700 flex-1"
+                                >
+                                    Apply Filters
+                                </Button>
+                                {(statusFilter || leaveTypeFilter) && (
+                                    <Button
+                                        onClick={handleResetFilters}
+                                        className="bg-slate-300 hover:bg-slate-400 text-slate-700"
+                                    >
+                                        Reset
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

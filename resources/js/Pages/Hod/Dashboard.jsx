@@ -49,16 +49,25 @@ export default function HodDashboard({ auth }) {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8 flex justify-between items-end">
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900">
+                        <h1 className="text-4xl font-black text-slate-900 mb-2">
                             Department Overview
                         </h1>
-                        <p className="text-sm text-slate-500 font-medium">
-                            Computer Science and Engineering
+                        <p className="text-slate-600 font-medium">
+                            Monitor your department's operations
                         </p>
                     </div>
-                    <Button className="bg-indigo-600 hover:bg-indigo-700">
-                        Generate Report
-                    </Button>
+                    <div className="flex gap-3">
+                        <Link href={route("hod.leaves.pending-recommendations")}>
+                            <Button className="bg-blue-600 hover:bg-blue-700">
+                                Pending Recommendations
+                            </Button>
+                        </Link>
+                        <Link href={route("hod.leaves.report")}>
+                            <Button className="bg-emerald-600 hover:bg-emerald-700">
+                                Leave Report
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
