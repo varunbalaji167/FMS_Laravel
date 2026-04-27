@@ -254,34 +254,6 @@ FMS_Laravel/
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! To get started:
-
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/your-feature-name`
-3. Commit your changes: `git commit -m 'feat: add your feature'`
-4. Push to the branch: `git push origin feature/your-feature-name`
-5. Open a Pull Request
-
-Please make sure your code follows the existing style and that all tests pass before submitting.
-
----
-
-## 🧪 Running Tests
-
-```bash
-php artisan test
-```
-
-Or with Sail:
-
-```bash
-./vendor/bin/sail artisan test
-```
-
----
-
 ## 🔒 Security
 
 If you discover a security vulnerability, please send an e-mail to the maintainer. All security vulnerabilities will be promptly addressed.
