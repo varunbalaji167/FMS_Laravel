@@ -1,58 +1,295 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="300" alt="Laravel Logo"/>
 
-## About Laravel
+# 🎓 Faculty Management System
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**A comprehensive web application to manage faculty records, attendance, leaves, and departmental operations — built with Laravel, React (Inertia.js), and Tailwind CSS.**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org)
+[![Inertia.js](https://img.shields.io/badge/Inertia.js-2.x-9553E9?style=for-the-badge&logo=inertia&logoColor=white)](https://inertiajs.com)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.x-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/varunbalaji167/FMS_Laravel/tests.yml?branch=main&style=for-the-badge)](https://github.com/varunbalaji167/FMS_Laravel/actions)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+[Features](#-features) • [Tech Stack](#-tech-stack) • [Installation](#-installation) • [Usage](#-usage) • [Project Structure](#-project-structure) • [Contributing](#-contributing)
 
-## Learning Laravel
+</div>
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 📌 About the Project
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+The **Faculty Management System (FMS)** is a full-stack web application designed for educational institutions to efficiently manage their faculty workforce. It provides a centralized platform for tracking faculty profiles, managing departmental assignments, handling leave requests, monitoring attendance, and generating insightful reports — all within a clean, modern interface.
 
-## Agentic Development
+> 🔗 **Related Project:** [Faculty Recruitment System (FRS)](https://github.com/varunbalaji167/FRS_Laravel) — handles the end-to-end hiring pipeline for new faculty.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
+
+## ✨ Features
+
+### 👤 Faculty Management
+- Add, view, edit, and deactivate faculty profiles
+- Upload and manage faculty documents (CV, certificates, ID proofs)
+- Track personal details, qualifications, and specializations
+- Assign faculty to departments and courses
+
+### 🏛️ Department Management
+- Create and manage academic departments
+- Assign HODs (Heads of Department)
+- Track department-wise faculty headcount and workload
+
+### 📅 Attendance Tracking
+- Mark and monitor daily faculty attendance
+- View attendance history with filters by date, department, or faculty
+- Export attendance reports in CSV/PDF format
+
+### 🗓️ Leave Management
+- Faculty can submit leave requests with type and reason
+- Admin/HOD can approve or reject leave applications
+- Dashboard summary of pending, approved, and rejected leaves
+- Leave balance tracking per faculty
+
+### 📊 Dashboard & Reports
+- Admin dashboard with real-time statistics
+- Department-wise faculty distribution charts
+- Leave utilization and attendance summary reports
+- Exportable reports for administrative use
+
+### 🔐 Authentication & Role-Based Access
+- Secure login for Admin, HOD, and Faculty roles
+- Role-specific dashboards and access controls
+- Laravel Sanctum-powered session management
+
+### 🌐 Modern UI/UX
+- Responsive design built with Tailwind CSS and shadcn/ui
+- Single-page application experience via Inertia.js
+- Intuitive navigation with a clean, minimal interface
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Backend Framework** | Laravel 12.x (PHP 8.2+) |
+| **Frontend** | React 18.x + Inertia.js |
+| **Styling** | Tailwind CSS 3.x |
+| **UI Components** | shadcn/ui |
+| **Build Tool** | Vite |
+| **Database** | MySQL / MariaDB |
+| **ORM** | Eloquent |
+| **Authentication** | Laravel Breeze |
+| **Containerization** | Docker (compose.yaml) |
+
+---
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **PHP** >= 8.2
+- **Composer** >= 2.x
+- **Node.js** >= 20.x and **npm** >= 10.x
+- **MySQL** >= 8.0 or MariaDB >= 10.6
+- **Git**
+- *(Optional)* Docker & Docker Compose
+
+---
+
+## 🚀 Installation
+
+### Option 1 — Local Setup
+
+**1. Clone the repository**
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/varunbalaji167/FMS_Laravel.git
+cd FMS_Laravel
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**2. Install PHP dependencies**
 
-## Contributing
+```bash
+composer install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**3. Install JavaScript dependencies**
 
-## Code of Conduct
+```bash
+npm install
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**4. Configure environment variables**
 
-## Security Vulnerabilities
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Open `.env` and update your database credentials:
 
-## License
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=fms_laravel
+DB_USERNAME=your_db_user
+DB_PASSWORD=your_db_password
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**5. Run database migrations and seed initial data**
+
+```bash
+php artisan migrate --seed
+```
+
+**6. Create a storage symlink**
+
+```bash
+php artisan storage:link
+```
+
+**7. Build frontend assets**
+
+```bash
+npm run build
+```
+
+**8. Start the development server**
+
+```bash
+php artisan serve
+```
+
+Visit **http://localhost:8000** in your browser.
+
+---
+
+### Option 2 — Docker Setup
+
+```bash
+git clone https://github.com/varunbalaji167/FMS_Laravel.git
+cd FMS_Laravel
+
+cp .env.example .env
+
+docker compose up -d
+
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan storage:link
+```
+
+Visit **http://localhost:8000** in your browser.
+
+---
+
+## 🔑 Default Credentials
+
+After seeding, you can log in with the following default accounts:
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@fms.com` | `password` |
+| HOD | `hod@fms.com` | `password` |
+| Faculty | `faculty@fms.com` | `password` |
+
+> ⚠️ **Change these credentials immediately in a production environment.**
+
+---
+
+## 💻 Development
+
+To run the app in development mode with hot module replacement:
+
+```bash
+# Start Laravel backend
+php artisan serve
+
+# In a separate terminal, start Vite dev server
+npm run dev
+```
+
+---
+
+## 📁 Project Structure
+
+```
+FMS_Laravel/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/       # Route controllers (Faculty, Department, Leave, Attendance...)
+│   │   ├── Middleware/        # Auth and role middleware
+│   │   └── Requests/          # Form request validation classes
+│   ├── Models/                # Eloquent models (Faculty, Department, Leave, Attendance...)
+│   └── Policies/              # Authorization policies
+├── database/
+│   ├── migrations/            # Database schema migrations
+│   └── seeders/               # Seed data for initial setup
+├── resources/
+│   ├── js/
+│   │   ├── Components/        # Reusable React components
+│   │   ├── Layouts/           # Page layout components
+│   │   └── Pages/             # Inertia.js page components
+│   └── css/                   # Global styles
+├── routes/
+│   ├── web.php                # Web routes
+│   └── auth.php               # Authentication routes
+├── public/                    # Publicly served files
+├── storage/                   # File uploads and logs
+├── compose.yaml               # Docker Compose configuration
+├── tailwind.config.js         # Tailwind CSS configuration
+├── vite.config.js             # Vite bundler configuration
+└── components.json            # shadcn/ui component config
+```
+
+---
+
+## 🖼️ Screenshots
+
+> *(Add screenshots of your Admin Dashboard, Faculty List, Leave Management page, and Attendance view here.)*
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! To get started:
+
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m 'feat: add your feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Open a Pull Request
+
+Please make sure your code follows the existing style and that all tests pass before submitting.
+
+---
+
+## 🧪 Running Tests
+
+```bash
+php artisan test
+```
+
+---
+
+## 🔒 Security
+
+If you discover a security vulnerability, please send an e-mail to the maintainer. All security vulnerabilities will be promptly addressed.
+
+---
+
+## 📄 License
+
+This project is open-sourced software licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+---
+
+<div align="center">
+
+Built with ❤️ using [Laravel](https://laravel.com) · [React](https://reactjs.org) · [Inertia.js](https://inertiajs.com) · [Tailwind CSS](https://tailwindcss.com)
+
+</div>
