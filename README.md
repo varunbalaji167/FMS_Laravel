@@ -11,7 +11,6 @@
 [![Inertia.js](https://img.shields.io/badge/Inertia.js-2.x-9553E9?style=for-the-badge&logo=inertia&logoColor=white)](https://inertiajs.com)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.x-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/varunbalaji167/FMS_Laravel/tests.yml?branch=main&style=for-the-badge)](https://github.com/varunbalaji167/FMS_Laravel/actions)
 
 [Features](#-features) • [Tech Stack](#-tech-stack) • [Installation](#-installation) • [Usage](#-usage) • [Project Structure](#-project-structure) • [Contributing](#-contributing)
@@ -255,12 +254,6 @@ FMS_Laravel/
 
 ---
 
-## 🖼️ Screenshots
-
-> *(Add screenshots of your Admin Dashboard, Faculty List, Leave Management page, and Attendance view here.)*
-
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! To get started:
@@ -295,14 +288,9 @@ If you discover a security vulnerability, please send an e-mail to the maintaine
 
 ---
 
-## 📄 License
-
-This project is open-sourced software licensed under the [MIT License](https://opensource.org/licenses/MIT).
-
----
 
 <div align="center">
 
-Built with ❤️ using [Laravel](https://laravel.com) · [React](https://reactjs.org) · [Inertia.js](https://inertiajs.com) · [Tailwind CSS](https://tailwindcss.com)
+Built with using [Laravel](https://laravel.com) · [React](https://reactjs.org) · [Inertia.js](https://inertiajs.com) · [Tailwind CSS](https://tailwindcss.com)
 
 </div>
